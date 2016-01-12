@@ -67,7 +67,7 @@ function DisplayController(element, options, tipController) {
 		session.tipOpenImminent = false;
 		if (element.data(DATA_HASACTIVEHOVER)) {
 			element.data(DATA_FORCEDOPEN, false);
-			if (!disableDelay) {
+			if (!disableDelay && options.closeDelay > 0) {
 				session.delayInProgress = true;
 				session.closeDelayTimeout = setTimeout(
 					function closeDelay() {
