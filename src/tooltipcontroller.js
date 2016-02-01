@@ -76,7 +76,7 @@ function TooltipController(options) {
 		// old one is still in its fadeOut cycle, so wait and try again
 		if (session.isTipOpen) {
 			if (!session.isClosing) {
-				hideTip(session.activeHover);
+				session.activeHover.data(DATA_DISPLAYCONTROLLER).hide(true);
 			}
 			tipElement.delay(100).queue(function queueTipAgain(next) {
 				showTip(element);
@@ -399,7 +399,7 @@ function TooltipController(options) {
 
 			if (isDesynced) {
 				// close the desynced tip
-				hideTip(session.activeHover);
+				session.activeHover.data(DATA_DISPLAYCONTROLLER).hide(true);
 			}
 		}
 	}
