@@ -76,7 +76,11 @@ function TooltipController(options) {
 		// old one is still in its fadeOut cycle, so wait and try again
 		if (session.isTipOpen) {
 			if (!session.isClosing) {
-				session.activeHover.data(DATA_DISPLAYCONTROLLER).hide(true);
+				if (session.activeHover && !session.activeHover.is(element) && session.activeHover.data && session.activeHover.data(DATA_DISPLAYCONTROLLER)) {
+					session.activeHover.data(DATA_DISPLAYCONTROLLER).hide(true);
+				} else {
+					hideTip(session.activeHover);
+				}
 			}
 			tipElement.delay(100).queue(function queueTipAgain(next) {
 				showTip(element);
@@ -399,7 +403,11 @@ function TooltipController(options) {
 
 			if (isDesynced) {
 				// close the desynced tip
-				session.activeHover.data(DATA_DISPLAYCONTROLLER).hide(true);
+				if (session.activeHover && session.activeHover.data && session.activeHover.data(DATA_DISPLAYCONTROLLER)) {
+					session.activeHover.data(DATA_DISPLAYCONTROLLER).hide(true);
+				} else {
+					hideTip(session.activeHover);
+				}
 			}
 		}
 	}
