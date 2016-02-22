@@ -205,7 +205,8 @@ $.fn.powerTip.smartPlacementLists = {
 	'sw-alt': [ 'sw-alt', 's', 'se-alt', 'nw-alt', 'n', 'ne-alt', 'w', 'e' ],
 	'se-alt': [ 'se-alt', 's', 'sw-alt', 'ne-alt', 'n', 'nw-alt', 'e', 'w' ],
 	nnw: [ 'n', 'ne', 'nw', 'w' ],
-	nne: [ 'n', 'ne', 'nw', 'e' ]
+	nne: [ 'n', 'ne', 'nw', 'e' ],
+	round: [ 'n', 'ne-alt', 'nw-alt', 'ne', 'nw', 'w', 'e', 's', 'se-alt', 'sw-alt', 'se', 'sw', 'n' ]
 };
 
 /**
