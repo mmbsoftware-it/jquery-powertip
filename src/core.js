@@ -23,14 +23,15 @@ var DATA_DISPLAYCONTROLLER = 'displayController',
 	DATA_POWERTIPJQ = 'powertipjq',
 	DATA_POWERTIPTARGET = 'powertiptarget',
 	EVENT_NAMESPACE = '.powertip',
-	RAD2DEG = 180 / Math.PI;
+	RAD2DEG = 180 / Math.PI,
+	DATA_POWERTIP_ID = 'powertipid';
 
 /**
  * Session data
  * Private properties global to all powerTip instances
  */
 var session = {
-	elements: null,
+	elements: [],
 	tooltips: null,
 	isTipOpen: false,
 	isFixedTipOpen: false,
@@ -98,7 +99,11 @@ $.fn.powerTip = function(opts, arg) {
 			dataPowertip = $this.data(DATA_POWERTIP),
 			dataElem = $this.data(DATA_POWERTIPJQ),
 			dataTarget = $this.data(DATA_POWERTIPTARGET),
-			title;
+			title,
+			powertipId ;
+
+		powertipId = Date.now() + Math.random().toString().substr(2, 4);
+		$this.data(DATA_POWERTIP_ID, powertipId);
 
 		// handle repeated powerTip calls on the same element by destroying the
 		// original instance hooked to it and replacing it with this call
@@ -121,6 +126,8 @@ $.fn.powerTip = function(opts, arg) {
 			DATA_DISPLAYCONTROLLER,
 			new DisplayController($this, options, tipController)
 		);
+
+		session.elements[powertipId] = $this;
 	});
 
 	// attach events to matched elements if the manual option is not enabled
@@ -159,7 +166,7 @@ $.fn.powerTip = function(opts, arg) {
 	}
 
 	// remember elements that the plugin is attached to
-	session.elements = session.elements ? session.elements.add(targetElements) : targetElements;
+	// session.elements = session.elements ? session.elements.add(targetElements) : targetElements;
 
 	return targetElements;
 };
@@ -302,7 +309,7 @@ $.powerTip = {
 	 *     Element, if one was specified.
 	 */
 	destroy: function apiDestroy(element) {
-		var $element = element ? $(element) : session.elements;
+		var $element = element ? $(element) : null;
 
 		// if the plugin is not hooked to any elements then there is no point
 		// trying to destroy anything, or dealing with the possible errors
@@ -310,29 +317,47 @@ $.powerTip = {
 			return element;
 		}
 
-		// unhook events and destroy plugin changes to each element
-		$element.off(EVENT_NAMESPACE).each(function destroy() {
-			var $this = $(this),
+		if (element) {
+			// unhook events and destroy plugin changes to each element
+			$element.off(EVENT_NAMESPACE).each(function destroy() {
+				var $this = $(this),
+					dataAttributes = [
+						DATA_ORIGINALTITLE,
+						DATA_DISPLAYCONTROLLER,
+						DATA_HASACTIVEHOVER,
+						DATA_FORCEDOPEN
+					];
+				// revert title attribute
+				if ($this.data(DATA_ORIGINALTITLE)) {
+					$this.attr('title', $this.data(DATA_ORIGINALTITLE));
+					dataAttributes.push(DATA_POWERTIP);
+				}
+				// remove data attributes
+				$this.removeData(dataAttributes);
+				delete(session.elements[$this.data(DATA_POWERTIP_ID)]);
+			});
+		} else {
+			Object.keys(session.elements).forEach(function destroy(v) {
+				var $this = session.elements[v],
 				dataAttributes = [
 					DATA_ORIGINALTITLE,
 					DATA_DISPLAYCONTROLLER,
 					DATA_HASACTIVEHOVER,
 					DATA_FORCEDOPEN
 				];
-
-			// revert title attribute
-			if ($this.data(DATA_ORIGINALTITLE)) {
-				$this.attr('title', $this.data(DATA_ORIGINALTITLE));
-				dataAttributes.push(DATA_POWERTIP);
-			}
-
-			// remove data attributes
-			$this.removeData(dataAttributes);
-		});
-
+				// revert title attribute
+				if ($this.data(DATA_ORIGINALTITLE)) {
+					$this.attr('title', $this.data(DATA_ORIGINALTITLE));
+					dataAttributes.push(DATA_POWERTIP);
+				}
+				// remove data attributes
+				$this.removeData(dataAttributes);
+			});
+			session.elements = [];
+		}
 		// remove destroyed element from active elements collection
-		session.elements = session.elements.not($element);
-
+		// Non più necessario
+		// session.elements = session.elements.not($element);
 		// if there are no active elements left then we will unhook all of the
 		// events that we've bound code to and remove the tooltip elements
 		if (session.elements.length === 0) {
